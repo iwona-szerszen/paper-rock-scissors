@@ -1,42 +1,49 @@
 <!DOCTYPE html>
 <html lang="en" >
-
 <head>
-  <meta charset="UTF-8">
-  <title>Task-8-4</title>
-  
-  
-  
-      <link rel="stylesheet" href="css/style.css">
-
-  
+	<meta charset="UTF-8">
+	<title>Task-9-3</title>
+	<link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-
-  <div>
-  <button id="button-new-game">New game</button>
-</div>
-
-<div id="message"></div>
-
-<div>
-	<button id="button-paper">Paper</button>
-  <button id="button-rock">Rock</button>
-  <button id="button-scissors">Scissors</button> 
-</div>
-
-<div id="result"></div>
-
-<div id="output"></div>
-  
-  
-
-    <script  src="js/index.js"></script>
-
-
-
-
+	<div>
+		<button id="button-new-game">New game</button>
+	</div>
+	<div id="message"></div>
+	<div>
+		<button id="button-paper" class="player-move" data-move="paper">Paper</button>
+		<button id="button-rock" class="player-move" data-move="rock">Rock</button>
+		<button id="button-scissors" class="player-move" data-move="scissors">Scissors</button> 
+	</div>
+	<div id="result"></div>
+	<div id="output"></div>
+	<div class="overlay" id="modal-overlay">
+		<div class="modal" id="modal-game-ending">
+			<a href="#" class="close">x</a>
+			<div class="content">
+				<p></p>
+				<table>
+					<thead>
+						<tr>
+							<th>Round number</th>
+							<th>Player movement</th>
+							<th>Computer movement</th>
+							<th>Round winner</th>
+							<th>Actual results</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+		<div class="modal" id="modal-new-game">
+			<a href="#" class="close">x</a>
+			<header></header>
+			<div class="content">
+				<p></p>
+			</div>
+		</div>
+	</div>
+	<script src="js/index.js"></script>
 </body>
-
 </html>

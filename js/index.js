@@ -5,137 +5,166 @@
   const message = document.getElementById('message');
   const result = document.getElementById('result');
   const output = document.getElementById('output');
+  const modalOverlay = document.getElementById('modal-overlay');
 
-  const buttonNewGame = document.getElementById('button-new-game');
-  const buttonPaper = document.getElementById('button-paper');
-  const buttonRock = document.getElementById('button-rock');
-  const buttonScissors = document.getElementById('button-scissors');
+  const newGameButton = document.getElementById('button-new-game');
+  const playerMoveButtons = document.getElementsByClassName('player-move');
+  const closeButtons = document.querySelectorAll('.modal .close');
+  const modals = document.getElementsByClassName('modal');
+  const gameEndingModal = document.getElementById('modal-game-ending');
 
-  let winningRoundsLimit;
-  let playerMovement;
-  let playerWinners;
-  let computerWinners;
-  let isNextRoundPossible;
-
-  /* longer function version of setting random computer movement 
-  // drawing random number between 1 and 3
-  function randomNumber() {
-    return Math.floor(Math.random() * 3 + 1); // Math.floor(Math.random() * (max-min+1) + min)
+  const params = {
+    winningRoundsLimit: undefined,
+    playerWinners: 0,
+    computerWinners: 0,
+    roundsPlayed: 0,
+    isNextRoundPossible: false,
+    progress: []
   };
-
-  // settig the value of computerMovement 
-  function compMove(randomNumber) {
-    switch (randomNumber) {
-      case 1: {
-        computerMovement = 'paper';
-        break;
-      }
-      case 2: {
-        computerMovement = 'rock';
-        break;
-      }
-      case 3: {
-        computerMovement = 'scissors';
-        break;
-      } 
-    }
-  };
-  */
 
   function getRandomComputerMovement() {
     return ['paper', 'rock', 'scissors'][Math.floor(Math.random() * 3)];
-  };
+  }
   
-  // finding out who is the winner of single game part
   function getRoundWinner(playerMovement, computerMovement) {
     if ((playerMovement == 'paper' && computerMovement == 'rock') || 
         (playerMovement == 'rock' && computerMovement == 'scissors') || 
         (playerMovement == 'scissors' && computerMovement == 'paper')) {
-      playerWinners++;
+      params.playerWinners++;
       return 'you';
     } else if ((playerMovement == 'paper' && computerMovement == 'scissors') || 
                (playerMovement == 'rock' && computerMovement == 'paper') || 
                (playerMovement == 'scissors' && computerMovement == 'rock')) {
-      computerWinners++;
+      params.computerWinners++;
       return 'computer';
     } else {
       return 'nobody';
     }
-  };
-
-  // finding out who is the winner of entire game
-  function getGameWinner(playerWinners, computerWinners) {
-    return (playerWinners > computerWinners) ? 'YOU' : 'COMPUTER';
-  };
-
-  // printing result of single round
-  function printSingleResult(winner, playerMovement, computerMovement) {
-    output.insertAdjacentHTML('afterBegin', (winner.toUpperCase() + ' WON: you played ' + playerMovement.toUpperCase() + ', computer played ' + computerMovement.toUpperCase() + '.<br>'));
-  };
-
-  // printing results of all played rounds
-  function printSummaryResults(playerWinners, computerWinners) {
-    result.innerHTML = 'Summary results (Player - Computer) <strong>' + playerWinners + ' - ' + computerWinners + '</strong><br><br>';
-  };
-  
-  function resetWinners() {
-    playerWinners = 0;
-    computerWinners = 0;
   }
   
+  function saveRoundData(self) {
+    params.roundsPlayed++;
+    params.progress[params.roundsPlayed - 1] = {};
+    params.progress[params.roundsPlayed - 1] = {
+      roundNumber: params.roundsPlayed, 
+      playerMovement: self.getAttribute('data-move'),
+      computerMovement: getRandomComputerMovement()
+    };
+  }
+
+  function saveRoundResult() {
+    params.progress[params.roundsPlayed - 1].roundWinner = getRoundWinner(params.progress[params.roundsPlayed - 1].playerMovement, params.progress[params.roundsPlayed - 1].computerMovement);
+    params.progress[params.roundsPlayed - 1].actualResults = params.playerWinners + ' - ' + params.computerWinners;
+  }
+
+  function getGameWinner(playerWinners, computerWinners) {
+    return (playerWinners > computerWinners) ? 'YOU' : 'COMPUTER';
+  }
+
+  function printRoundWinner(roundWinner, playerMovement, computerMovement) {
+    output.insertAdjacentHTML('afterBegin', `${roundWinner.toUpperCase()} WON: you played ${playerMovement.toUpperCase()}, computer played ${computerMovement.toUpperCase()}.<br>`);
+  }
+
+  function printActualResults(actualResults) {
+    result.innerHTML = `Actual results (Player - Computer): <strong>${actualResults}</strong><br><br>`;
+  }
+
   function initGame() {
-    isNextRoundPossible = true;
-    resetWinners();
-    message.innerHTML = '<strong>' + winningRoundsLimit + '</strong> winning rounds finish your game - let\'s play!<br><br>Click on your movement:<br>';
-  };
+    params.isNextRoundPossible = true;
+    message.innerHTML = `<strong>${params.winningRoundsLimit}</strong> winning rounds finish your game - let\'s play!<br><br>Click on your movement:<br>`;
+  }
    
-  function setGameEnding(winner) {
-    isNextRoundPossible = false;
-    resetWinners();
-    output.insertAdjacentHTML('afterBegin', '<strong>The game has finished! '+ winner +' WON THE ENTIRE GAME!!!</strong><br>');
-    message.innerHTML = '';
-  };  
+  function setGameEnding() {
+    params.isNextRoundPossible = false;
+    params.playerWinners = 0;
+    params.computerWinners = 0;
+    deletePageInfo();    
+  } 
   
-  function playerMove(text) {
-    if (winningRoundsLimit === undefined || winningRoundsLimit === 'invalid') {
+  function play() {
+    if (params.winningRoundsLimit === undefined || params.winningRoundsLimit === 'invalid') {
       output.insertAdjacentHTML('afterBegin', 'To start the game, please, press the new game button!<br>');
     } else {
-      if (isNextRoundPossible) {
-        playerMovement = text;
-        printSingleResult(getRoundWinner(playerMovement, getRandomComputerMovement()), playerMovement, getRandomComputerMovement());
-        printSummaryResults(playerWinners, computerWinners);
+      if (params.isNextRoundPossible) {     
+        const self = this;   
+        saveRoundData(self);
+        saveRoundResult();
+        printRoundWinner(params.progress[params.roundsPlayed - 1].roundWinner, params.progress[params.roundsPlayed - 1].playerMovement, params.progress[params.roundsPlayed - 1].computerMovement);
+        printActualResults(params.progress[params.roundsPlayed - 1].actualResults);
       } else {
         output.insertAdjacentHTML('afterBegin', 'Game over, please press the new game button!<br>');
       }
-      if (playerWinners == winningRoundsLimit || computerWinners == winningRoundsLimit) {
-        setGameEnding(getGameWinner(playerWinners, computerWinners));
+      if (params.playerWinners == params.winningRoundsLimit || params.computerWinners == params.winningRoundsLimit) {
+        showModalGameEnding(getGameWinner(params.playerWinners, params.computerWinners));
+        setGameEnding();
       }    
     }
-  };
+  }
 
-  buttonNewGame.addEventListener('click', function() {
+  function showModalGameEnding(winner) {
+    event.preventDefault();
+    modalOverlay.classList.add('show');
+    gameEndingModal.classList.add('show');
+    document.querySelector('#modal-new-game').classList.remove('show');
+    gameEndingModal.getElementsByTagName('p')[0].innerHTML = `The game has finished! ${winner} WON THE ENTIRE GAME!`;
+    for (let i = 0; i < params.progress.length; i++) {
+      gameEndingModal.getElementsByTagName('tbody')[0].insertAdjacentHTML('afterBegin', `<tr><td>${params.progress[i].roundNumber}</td><td>${params.progress[i].playerMovement}</td><td>${params.progress[i].computerMovement}</td><td>${params.progress[i].roundWinner}</td><td>${params.progress[i].actualResults}</td></tr>`);
+    }
+  }
+
+  function hideModal(event) {
+    event.preventDefault();
+    modalOverlay.classList.remove('show');
+  }
+
+  function resetParams() {
+    params.winningRoundsLimit = undefined;
+    params.playerWinners = 0;
+    params.computerWinners = 0;
+    params.roundsPlayed = 0;
+    params.isNextRoundPossible = false;
+    params.progress = [];
+  }
+
+ function deletePageInfo() {
+    message.innerHTML = '';
     result.innerHTML = '';
     output.innerHTML = '';
-    winningRoundsLimit = (window.prompt('Enter the number of winning rounds that will finish the game:')).trim();
+  }
+
+  function deleteModalInfo() {
+    gameEndingModal.getElementsByTagName('p')[0].innerHTML = '';
+    gameEndingModal.getElementsByTagName('tbody')[0].innerHTML = '';
+  }
+
+  newGameButton.addEventListener('click', () => {
+    resetParams();
+    deleteModalInfo();
+    output.innerHTML = '';
+    params.winningRoundsLimit = (window.prompt('Enter the number of winning rounds that will finish the game:')).trim();
     // checking if entered data is an integer different from zero
-    if ((Math.ceil(winningRoundsLimit) === Math.floor(winningRoundsLimit)) && winningRoundsLimit != 0) {
+    if ((Math.ceil(params.winningRoundsLimit) === Math.floor(params.winningRoundsLimit)) && params.winningRoundsLimit != 0) {
       initGame();
     } else {
-      winningRoundsLimit = 'invalid';
+      params.winningRoundsLimit = 'invalid';
       message.innerHTML = 'You\'ve entered incorrect number! Please, try again<br><br>';
     }  
   });
-
-  buttonPaper.addEventListener('click', function() {
-    playerMove('paper'); 
-  });
-
-  buttonRock.addEventListener('click', function() {
-    playerMove('rock');
-  });
-
-  buttonScissors.addEventListener('click', function() {
-    playerMove('scissors');
-  });
   
+  for (let i = 0; i < playerMoveButtons.length; i++) {
+    playerMoveButtons[i].addEventListener('click', play);
+  }
+
+  for (let i = 0; i < closeButtons.length; i++) {
+    closeButtons[i].addEventListener('click', hideModal);
+  }
+
+  modalOverlay.addEventListener('click', hideModal);
+
+  for (let i = 0; i < modals.length; i++) {
+    modals[i].addEventListener('click', event => {
+      event.stopPropagation();
+    });
+  }  
+
 })();

@@ -24,21 +24,36 @@ button {
   touch-action: manipulation;
   user-select: none;
   margin: 15px 10px 15px;
-	
 	&:hover, &:active {
-	  color: #02ac46;
-		background-color: #fff;
+	  color: #5F9EA0;
 	}
+}
+
+#button-paper:hover,
+#button-paper:active,
+#button-rock:hover,
+#button-rock:active,
+#button-scissors:hover,
+#button-scissors:active,
+#button-new-game:hover,
+#button-new-game:active {
+  background-color: #fff;
 }
 
 #button-rock {
   background-color: #696969;
   border-color: #696969;
+  &:hover, &:active {
+    color: #696969;
+  }
 }
 
 #button-scissors {
   background-color: #A9A9A9;
   border-color: #A9A9A9;
+  &:hover, &:active {
+    color: #A9A9A9;
+  }
 }
 
 #button-new-game {
@@ -46,4 +61,66 @@ button {
   border-color: #48a64c;
   width: 25%;
   margin-bottom: 15px;
+  &:hover, &:active {
+    color: #48a64c;
+  }
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  &.show {
+    display: block;
+  }
+}
+
+.modal {
+  display: none;
+  background: #fff;
+  min-width: 58%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  &.show {
+    display: block;
+  }
+}
+
+.close {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 5px;
+  color: #000;
+  text-decoration: none;
+}
+
+table {
+  text-align: center;
+  border: 1px solid #000;
+  border-collapse: collapse;
+  margin: 15px auto;
+  thead th {
+    width: 20%;
+    height: 25px;
+    padding: 0 3px;
+    &:not(:last-child) {
+      border-right: 1px solid #000;
+    }
+  }
+  tbody tr {
+    border-top: 1px solid #ddd;
+    &:first-child {
+      border-top: 1px solid #000;
+    }
+    td:not(&:last-child) {
+      border-right: 1px solid #000;
+    }
+  }
 }
