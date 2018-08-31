@@ -18,6 +18,21 @@
 	<div id="result"></div>
 	<div id="output"></div>
 	<div class="overlay" id="modal-overlay">
+		<div class="modal" id="modal-new-game">
+			<a href="#" class="close">x</a>
+			<div class="content">
+				<div>
+					<label for="player-name">Player name </label>
+					<input id="player-name" type="text">
+				</div>
+				<div>
+					<label for="winning-rounds-limit">Winning rounds limit</label>
+					<input id="winning-rounds-limit" type="number">
+				</div>
+				<button id="button-start">Start</button>
+				<p></p>
+			</div>
+		</div>
 		<div class="modal" id="modal-game-ending">
 			<a href="#" class="close">x</a>
 			<div class="content">
@@ -34,13 +49,6 @@
 					</thead>
 					<tbody></tbody>
 				</table>
-			</div>
-		</div>
-		<div class="modal" id="modal-new-game">
-			<a href="#" class="close">x</a>
-			<header></header>
-			<div class="content">
-				<p></p>
 			</div>
 		</div>
 	</div>

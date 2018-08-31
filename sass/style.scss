@@ -14,8 +14,7 @@ button {
   white-space: nowrap;
   vertical-align: middle;
 	color: #fff;
-  background-color: #5F9EA0;
-	border: 2px solid #5F9EA0;
+	border: 2px solid;
   border-radius: 4px;  
 	transition: color .3s, background-color .3s;
   cursor: pointer;
@@ -24,46 +23,53 @@ button {
   touch-action: manipulation;
   user-select: none;
   margin: 15px 10px 15px;
-	&:hover, &:active {
-	  color: #5F9EA0;
-	}
 }
 
-#button-paper:hover,
-#button-paper:active,
-#button-rock:hover,
-#button-rock:active,
-#button-scissors:hover,
-#button-scissors:active,
-#button-new-game:hover,
-#button-new-game:active {
-  background-color: #fff;
+#button-paper {
+  background-color: #5F9EA0;
+  border-color: #5F9EA0;
+  &:hover,
+  &:active {
+    color: #5F9EA0;
+    background-color: #fff;
+  }
 }
 
 #button-rock {
   background-color: #696969;
   border-color: #696969;
-  &:hover, &:active {
+  &:hover,
+  &:active {
     color: #696969;
+    background-color: #fff;
   }
 }
 
 #button-scissors {
   background-color: #A9A9A9;
   border-color: #A9A9A9;
-  &:hover, &:active {
+  &:hover,
+  &:active {
     color: #A9A9A9;
+    background-color: #fff;
   }
 }
 
-#button-new-game {
+#button-new-game,
+#button-start {
   background-color: #48a64c;
   border-color: #48a64c;
   width: 25%;
   margin-bottom: 15px;
-  &:hover, &:active {
+  &:hover,
+  &:active {
     color: #48a64c;
+    background-color: #fff;
   }
+}
+
+#button-start {
+  margin-bottom: 0px;
 }
 
 .overlay {
@@ -99,6 +105,16 @@ button {
   padding: 5px;
   color: #000;
   text-decoration: none;
+}
+
+label, 
+input {
+  text-align: left;
+  margin: 15px 5px 0;
+}
+
+input {
+  border: 1px solid #696969;
 }
 
 table {

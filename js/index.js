@@ -8,12 +8,15 @@
   const modalOverlay = document.getElementById('modal-overlay');
 
   const newGameButton = document.getElementById('button-new-game');
+  const startButton = document.getElementById('button-start');
   const playerMoveButtons = document.getElementsByClassName('player-move');
   const closeButtons = document.querySelectorAll('.modal .close');
   const modals = document.getElementsByClassName('modal');
+  const newGameModal = document.getElementById('modal-new-game');
   const gameEndingModal = document.getElementById('modal-game-ending');
 
   const params = {
+    playerName: undefined,
     winningRoundsLimit: undefined,
     playerWinners: 0,
     computerWinners: 0,
@@ -26,12 +29,12 @@
     return ['paper', 'rock', 'scissors'][Math.floor(Math.random() * 3)];
   }
   
-  function getRoundWinner(playerMovement, computerMovement) {
+  function getRoundWinner(playerName, playerMovement, computerMovement) {
     if ((playerMovement == 'paper' && computerMovement == 'rock') || 
         (playerMovement == 'rock' && computerMovement == 'scissors') || 
         (playerMovement == 'scissors' && computerMovement == 'paper')) {
       params.playerWinners++;
-      return 'you';
+      return playerName;
     } else if ((playerMovement == 'paper' && computerMovement == 'scissors') || 
                (playerMovement == 'rock' && computerMovement == 'paper') || 
                (playerMovement == 'scissors' && computerMovement == 'rock')) {
@@ -53,20 +56,20 @@
   }
 
   function saveRoundResult() {
-    params.progress[params.roundsPlayed - 1].roundWinner = getRoundWinner(params.progress[params.roundsPlayed - 1].playerMovement, params.progress[params.roundsPlayed - 1].computerMovement);
+    params.progress[params.roundsPlayed - 1].roundWinner = getRoundWinner(params.playerName, params.progress[params.roundsPlayed - 1].playerMovement, params.progress[params.roundsPlayed - 1].computerMovement);
     params.progress[params.roundsPlayed - 1].actualResults = params.playerWinners + ' - ' + params.computerWinners;
   }
 
-  function getGameWinner(playerWinners, computerWinners) {
-    return (playerWinners > computerWinners) ? 'YOU' : 'COMPUTER';
+  function getGameWinner(playerName, playerWinners, computerWinners) {
+    return (playerWinners > computerWinners) ? playerName : 'COMPUTER';
   }
 
-  function printRoundWinner(roundWinner, playerMovement, computerMovement) {
-    output.insertAdjacentHTML('afterBegin', `${roundWinner.toUpperCase()} WON: you played ${playerMovement.toUpperCase()}, computer played ${computerMovement.toUpperCase()}.<br>`);
+  function printRoundWinner(roundWinner, playerName, playerMovement, computerMovement) {
+    output.insertAdjacentHTML('afterBegin', `${roundWinner.toUpperCase()} WON: ${playerName} played ${playerMovement.toUpperCase()}, computer played ${computerMovement.toUpperCase()}.<br>`);
   }
 
-  function printActualResults(actualResults) {
-    result.innerHTML = `Actual results (Player - Computer): <strong>${actualResults}</strong><br><br>`;
+  function printActualResults(playerName, actualResults) {
+    result.innerHTML = `Actual results (${playerName} - Computer): <strong>${actualResults}</strong><br><br>`;
   }
 
   function initGame() {
@@ -89,27 +92,34 @@
         const self = this;   
         saveRoundData(self);
         saveRoundResult();
-        printRoundWinner(params.progress[params.roundsPlayed - 1].roundWinner, params.progress[params.roundsPlayed - 1].playerMovement, params.progress[params.roundsPlayed - 1].computerMovement);
-        printActualResults(params.progress[params.roundsPlayed - 1].actualResults);
+        printRoundWinner(params.progress[params.roundsPlayed - 1].roundWinner, params.playerName, params.progress[params.roundsPlayed - 1].playerMovement, params.progress[params.roundsPlayed - 1].computerMovement);
+        printActualResults(params.playerName, params.progress[params.roundsPlayed - 1].actualResults);
       } else {
         output.insertAdjacentHTML('afterBegin', 'Game over, please press the new game button!<br>');
       }
       if (params.playerWinners == params.winningRoundsLimit || params.computerWinners == params.winningRoundsLimit) {
-        showModalGameEnding(getGameWinner(params.playerWinners, params.computerWinners));
+        showGameEndingModal(getGameWinner(params.playerName, params.playerWinners, params.computerWinners));
         setGameEnding();
       }    
     }
   }
 
-  function showModalGameEnding(winner) {
+  function showGameEndingModal(winner) {
     event.preventDefault();
     modalOverlay.classList.add('show');
     gameEndingModal.classList.add('show');
-    document.querySelector('#modal-new-game').classList.remove('show');
-    gameEndingModal.getElementsByTagName('p')[0].innerHTML = `The game has finished! ${winner} WON THE ENTIRE GAME!`;
+    newGameModal.classList.remove('show');
+    gameEndingModal.getElementsByTagName('p')[0].innerHTML = `The game has finished! ${winner.toUpperCase()} WON THE ENTIRE GAME!`;
     for (let i = 0; i < params.progress.length; i++) {
       gameEndingModal.getElementsByTagName('tbody')[0].insertAdjacentHTML('afterBegin', `<tr><td>${params.progress[i].roundNumber}</td><td>${params.progress[i].playerMovement}</td><td>${params.progress[i].computerMovement}</td><td>${params.progress[i].roundWinner}</td><td>${params.progress[i].actualResults}</td></tr>`);
     }
+  }
+
+  function showNewGameModal() {
+    event.preventDefault();
+    modalOverlay.classList.add('show');
+    newGameModal.classList.add('show');
+    gameEndingModal.classList.remove('show');
   }
 
   function hideModal(event) {
@@ -117,7 +127,19 @@
     modalOverlay.classList.remove('show');
   }
 
+  function clearNewGameModal() {
+    document.getElementById('player-name').value = '';
+    document.getElementById('winning-rounds-limit').value = '';
+    newGameModal.getElementsByTagName('p')[0].innerHTML = '';
+  }
+
+  function clearGameEndingModal() {
+    gameEndingModal.getElementsByTagName('p')[0].innerHTML = '';
+    gameEndingModal.getElementsByTagName('tbody')[0].innerHTML = '';
+  }
+
   function resetParams() {
+    params.playerName = undefined;
     params.winningRoundsLimit = undefined;
     params.playerWinners = 0;
     params.computerWinners = 0;
@@ -132,22 +154,27 @@
     output.innerHTML = '';
   }
 
-  function deleteModalInfo() {
-    gameEndingModal.getElementsByTagName('p')[0].innerHTML = '';
-    gameEndingModal.getElementsByTagName('tbody')[0].innerHTML = '';
-  }
-
   newGameButton.addEventListener('click', () => {
+    deletePageInfo();
     resetParams();
-    deleteModalInfo();
-    output.innerHTML = '';
-    params.winningRoundsLimit = (window.prompt('Enter the number of winning rounds that will finish the game:')).trim();
+    clearGameEndingModal();
+    clearNewGameModal();
+    showNewGameModal();
+  });
+
+  startButton.addEventListener('click', () => {
+    params.playerName = document.getElementById('player-name').value.trim();
+    params.winningRoundsLimit = document.getElementById('winning-rounds-limit').value;
     // checking if entered data is an integer different from zero
-    if ((Math.ceil(params.winningRoundsLimit) === Math.floor(params.winningRoundsLimit)) && params.winningRoundsLimit != 0) {
+    if ((Math.ceil(params.winningRoundsLimit) === Math.floor(params.winningRoundsLimit)) && params.winningRoundsLimit >= 1 && params.playerName.length != 0) {
+      hideModal(event);
       initGame();
+    } else if(!params.playerName.length) {
+      newGameModal.getElementsByTagName('p')[0].innerHTML = 'You\'ve entered no Player name! Please, try again';
     } else {
       params.winningRoundsLimit = 'invalid';
-      message.innerHTML = 'You\'ve entered incorrect number! Please, try again<br><br>';
+      document.getElementById('winning-rounds-limit').value = '';
+      newGameModal.getElementsByTagName('p')[0].innerHTML = 'You\'ve entered incorrect number! Please, try again';
     }  
   });
   
@@ -158,7 +185,7 @@
   for (let i = 0; i < closeButtons.length; i++) {
     closeButtons[i].addEventListener('click', hideModal);
   }
-
+  
   modalOverlay.addEventListener('click', hideModal);
 
   for (let i = 0; i < modals.length; i++) {
